@@ -1,6 +1,37 @@
 #!/bin/bash
 
-# Update Flatpak and install applications
+# Ask the user if they are using Arch or an Arch derivative
+echo "Are you using Arch or an Arch derivative? (y/n)"
+read -r arch_choice
+
+if [[ "$arch_choice" != "y" ]]; then
+  echo "Please install Flatpak for your OS manually. Exiting..."
+  exit 1
+fi
+
+# Check if Flatpak is installed
+if ! command -v flatpak &> /dev/null; then
+  echo "Flatpak is not installed. Installing Flatpak..."
+  sudo pacman -S --noconfirm flatpak
+  
+  echo "Flatpak has been installed."
+  
+  # Ask the user if they want to reboot
+  echo "Do you want to reboot your system now? (y/n)"
+  read -r reboot_choice
+  
+  if [[ "$reboot_choice" == "y" ]]; then
+    echo "Rebooting..."
+    reboot
+  else
+    echo "Please reboot your system manually to complete the installation."
+    exit 0
+  fi
+else
+  echo "Flatpak is already installed."
+fi
+
+# Proceed with Flatpak updates and installations
 echo "Updating Flatpak repositories..."
 flatpak update
 
@@ -34,6 +65,5 @@ flatpak install -y flathub io.gitlab.adhami3310.Converter
 flatpak install -y flathub org.jousse.vincent.Pomodorolm
 flatpak install -y flathub com.google.Chrome
 flatpak install -y flathub org.kicad.KiCad
-
 
 echo "All Flatpaks have been installed!"
